@@ -94,7 +94,7 @@ def delete_member(member_id):
     
 @app.route('/workout_session/<int:member_id>', methods=['GET'])
 def get_sessions(member_id):
-    session = WorkoutSession.query.filter_by(member_id).all()
+    session = WorkoutSession.query.filter_by(member_id=member_id).all()
     return sessions_schema.jsonify(session)
 
 @app.route('/workout_session/<int:member_id>', methods=['POST'])
@@ -103,18 +103,23 @@ def add_session(member_id):
         session_data = session_schema.load(request.json)
     except ValidationError as err:
         return jsonify(err.messages),400
-    # member = db.session.get(member_id)# getting all the information of the member from the member id in the database and tying it to this variable member. converts all the info to use in python
-    # new_session = WorkoutSession(date=session_data['date'], duration_minutes=session_data['duration_minutes'], calories_burned=session_data['calories_burned'])
+    # member = db.session.get(Member,member_id)# getting all the information of the member from the member id in the database and tying it to this variable member. converts all the info to use in python
+    member = Member.query.get(member_id)
+    if not member:
+        return jsonify({"error": "Member not found. "}),404
     
+    new_session = WorkoutSession(
+        date=session_data['date'], duration_minutes=session_data['duration_minutes'], calories_burned=session_data['calories_burned'],member_id=member_id
+    )
+    #new_lists = list(new_session)
     # member.workoutsessions.append(new_session)#This all of the member's information stored into member. workoutsessions is the propery of the Member class which holds all of the workoutsessions that are tied to that member. appending new session to the member
-    db.session.add(member)#adding it to the sqlalchemy session .. staging the info
+    db.session.add(new_session)#adding it to the sqlalchemy session .. staging the info
     db.session.commit()#commiting the information then sqlachemy will do its magic
     return jsonify({"Session added successfully"}),201
     
-    # db.session.commit()
-    # return jsonify({"message": "New session added successfully"}),201
+    
 
-@app.route('/workout_session/<int:id>', methods=['PUT'])
+@app.route('/workout_session/<int:session_id>', methods=['PUT'])
 def update_session(session_id):
     session = WorkoutSession.query.get_or_404(session_id)
     try:

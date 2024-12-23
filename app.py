@@ -115,7 +115,7 @@ def add_session(member_id):
     # member.workoutsessions.append(new_session)#This all of the member's information stored into member. workoutsessions is the propery of the Member class which holds all of the workoutsessions that are tied to that member. appending new session to the member
     db.session.add(new_session)#adding it to the sqlalchemy session .. staging the info
     db.session.commit()#commiting the information then sqlachemy will do its magic
-    return jsonify({"Session added successfully"}),201
+    return jsonify({"Message":"Session added successfully"}),201
     
     
 
